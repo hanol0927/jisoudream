@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지수의 꿈 · 서버 위키</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/galmuri.css');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+:root{
+  --bg:#0a0f28; --bg2:#111a3f; --bg3:#1a2555; --panel:#141d47;
+  --ink:#eef2ff; --muted:#94a2cf; --dim:#6675a8;
+  --red:#ee1515; --red-d:#b40e0e; --gold:#ffcb05; --blue:#3b6fd6;
+  --green:#4ade80; --nerf:#ff6b6b;
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.15);
+  --px:'Galmuri11','Pretendard',sans-serif;
+  --px9:'Galmuri9','Pretendard',sans-serif;
+  --body:'Pretendard',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body); background:var(--bg); color:var(--ink);
+  line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 85% -5%, rgba(59,111,214,.18), transparent 60%),
+    radial-gradient(700px 500px at 5% 105%, rgba(238,21,21,.13), transparent 60%),
+    linear-gradient(transparent 0 39px, rgba(255,255,255,.018) 39px 40px),
+    linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.018) 39px 40px);
+  background-size:auto,auto,40px 40px,40px 40px;
+}
+::selection{background:var(--gold);color:#111}
+
+/* ===================== 입장 스플래시 ===================== */
+#splash{
+  position:fixed; inset:0; z-index:1000; display:grid; place-items:center;
+  background:
+    radial-gradient(circle at 50% 40%, #17224f 0%, #0a0f28 55%, #05081a 100%);
+  overflow:hidden;
+}
+.stars{position:absolute; inset:0; pointer-events:none}
+.stars i{position:absolute; width:3px; height:3px; background:#fff; opacity:.5;
+  animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.85}}
+.splash-inner{position:relative; z-index:2; text-align:center; padding:20px}
+
+.ball-stage{margin:0 auto 30px; width:150px; height:150px; position:relative}
+.pball{
+  width:150px; height:150px; position:relative; margin:auto;
+  transform-origin:50% 100%;
+  animation:wobble 2.2s ease-in-out infinite;
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,.55));
+}
+.pball .top,.pball .bot{position:absolute; left:0; width:150px; height:75px; overflow:hidden}
+.pball .top{top:0; background:linear-gradient(#ff4b4b,#ee1515 60%,#c00e0e);
+  border-radius:75px 75px 0 0; box-shadow:inset 0 8px 0 rgba(255,255,255,.25)}
+.pball .bot{top:75px; background:linear-gradient(#fdfdfd,#dfe4f0);
+  border-radius:0 0 75px 75px; box-shadow:inset 0 -8px 0 rgba(0,0,0,.12)}
+.pball .band{position:absolute; top:66px; left:0; width:150px; height:18px; background:#12161f}
+.pball::after{content:""; position:absolute; inset:0; border-radius:50%;
+  border:8px solid #12161f}
+.pball .btn{
+  position:absolute; top:50%; left:50%; width:42px; height:42px; transform:translate(-50%,-50%);
+  background:radial-gradient(circle at 35% 35%,#fff,#c9d0e2 60%,#9aa4c4);
+  border:8px solid #12161f; border-radius:50%; z-index:3;
+  box-shadow:0 0 0 4px #fff, 0 0 24px rgba(255,255,255,.0);
+  transition:box-shadow .3s;
+}
+.glow .pball .btn{box-shadow:0 0 0 4px #fff, 0 0 40px 10px var(--gold)}
+@keyframes wobble{
+  0%,72%,100%{transform:rotate(0)}
+  76%{transform:rotate(-13deg)}
+  82%{transform:rotate(11deg)}
+  88%{transform:rotate(-7deg)}
+  94%{transform:rotate(4deg)}
+}
+
+.splash-title{
+  font-family:var(--px); font-size:clamp(30px,7vw,58px); line-height:1.35;
+  color:var(--gold); letter-spacing:1px;
+  text-shadow:0 0 2px var(--blue), 3px 3px 0 var(--blue), 5px 5px 0 rgba(0,0,0,.4);
+}
+.splash-sub{font-family:var(--px9); color:#aeb9e6; margin-top:16px; font-size:clamp(11px,2.6vw,15px);
+  letter-spacing:.5px}
+.enter-btn{
+  margin-top:38px; font-family:var(--px); font-size:16px; color:#fff; cursor:pointer;
+  background:linear-gradient(#ff4b4b,#ee1515 55%,#c00e0e);
+  border:none; padding:18px 40px; position:relative;
+  box-shadow:0 6px 0 #7d0808, 0 10px 22px rgba(0,0,0,.4);
+  transition:transform .08s, box-shadow .08s; letter-spacing:1px;
+}
+.enter-btn:hover{filter:brightness(1.08)}
+.enter-btn:active{transform:translateY(5px); box-shadow:0 2px 0 #7d0808}
+.enter-btn::before,.enter-btn::after{content:"";position:absolute;top:0;width:6px;height:100%;background:rgba(0,0,0,.18)}
+.enter-btn::before{left:0}.enter-btn::after{right:0}
+.hint{margin-top:16px;font-family:var(--px9);font-size:11px;color:var(--dim)}
+
+.flash{position:fixed; inset:0; z-index:1100; background:#fff; border-radius:50%;
+  transform:scale(0); pointer-events:none; opacity:0}
+.flash.go{animation:burst 1s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes burst{
+  0%{transform:scale(0);opacity:.9;border-radius:50%}
+  55%{opacity:1;border-radius:0}
+  100%{transform:scale(3.2);opacity:0;border-radius:0}
+}
+#splash.leaving{animation:splashOut .6s ease forwards}
+@keyframes splashOut{to{opacity:0;visibility:hidden}}
+
+/* ===================== 앱 레이아웃 ===================== */
+#app{position:relative; z-index:1; opacity:0; min-height:100vh}
+#app.show{animation:appIn .7s .25s ease both}
+@keyframes appIn{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:none}}
+
+.topbar{
+  position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:14px;
+  padding:12px 18px; background:rgba(10,15,40,.82); backdrop-filter:blur(10px);
+  border-bottom:2px solid var(--line2);
+}
+.logo-ball{width:30px;height:30px;border-radius:50%;flex:0 0 auto;position:relative;
+  background:linear-gradient(#ee1515 0 47%,#12161f 47% 53%,#f2f4fa 53% 100%);
+  border:3px solid #12161f;box-shadow:0 0 0 2px rgba(255,255,255,.1)}
+.logo-ball::after{content:"";position:absolute;top:50%;left:50%;width:8px;height:8px;
+  transform:translate(-50%,-50%);background:#fff;border:3px solid #12161f;border-radius:50%}
+.brand{font-family:var(--px); font-size:16px; color:var(--gold);
+  text-shadow:2px 2px 0 var(--blue); letter-spacing:.5px}
+.brand small{display:block;font-family:var(--px9);font-size:9px;color:var(--muted);
+  text-shadow:none;margin-top:3px;letter-spacing:0}
+.status{margin-left:auto; font-family:var(--px9); font-size:10px; color:var(--muted);
+  display:flex; align-items:center; gap:7px}
+.dot{width:9px;height:9px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 10px var(--green); animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.4}}
+
+.shell{display:flex; max-width:1180px; margin:0 auto; gap:26px; padding:26px 18px 80px}
+nav.side{
+  flex:0 0 210px; position:sticky; top:80px; align-self:flex-start;
+  display:flex; flex-direction:column; gap:6px;
+}
+.nav-btn{
+  font-family:var(--px9); font-size:13px; text-align:left; cursor:pointer;
+  background:var(--bg2); color:var(--muted); border:2px solid var(--line);
+  padding:13px 14px; display:flex; align-items:center; gap:11px;
+  transition:.15s; letter-spacing:.3px; width:100%;
+}
+.nav-btn .ic{font-size:16px;filter:grayscale(.2)}
+.nav-btn:hover{color:var(--ink); border-color:var(--line2); transform:translateX(3px)}
+.nav-btn.active{background:linear-gradient(90deg,var(--red-d),#8a0b0b);color:#fff;
+  border-color:#ff5a5a; box-shadow:0 4px 0 #5c0707}
+main{flex:1 1 auto; min-width:0}
+
+/* 섹션 */
+.section{display:none; animation:secIn .4s ease}
+.section.active{display:block}
+@keyframes secIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sec-head{margin-bottom:22px; padding-bottom:14px; border-bottom:2px dashed var(--line2)}
+.sec-head h2{font-family:var(--px); font-size:clamp(20px,4vw,28px); color:var(--gold);
+  text-shadow:3px 3px 0 var(--blue); letter-spacing:.5px}
+.sec-head p{color:var(--muted); font-size:14px; margin-top:10px}
+
+/* 카드 & 패널 */
+.panel{background:var(--bg2); border:2px solid var(--line); padding:20px; margin-bottom:18px;
+  position:relative}
+.panel::before{content:"";position:absolute;top:-2px;left:-2px;width:12px;height:12px;
+  background:var(--gold)}
+.panel::after{content:"";position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;
+  background:var(--red)}
+.p-title{font-family:var(--px9); font-size:13px; color:var(--gold); margin-bottom:14px;
+  display:flex; align-items:center; gap:9px; letter-spacing:.4px}
+.p-title .ic{font-size:17px}
+
+.grid{display:grid; gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--bg3); border:2px solid var(--line); padding:15px 16px}
+.card h4{font-family:var(--px9); font-size:13px; color:var(--gold); margin-bottom:8px;letter-spacing:.3px}
+.card p{font-size:13.5px; color:#cdd6f0}
+
+/* 개요 히어로 */
+.hero{background:linear-gradient(135deg,#16204d,#0d1436); border:2px solid var(--line2);
+  padding:34px 26px; text-align:center; position:relative; overflow:hidden; margin-bottom:20px}
+.hero .bigball{position:absolute; right:-40px; top:-40px; width:180px; height:180px; opacity:.13;
+  border-radius:50%; background:linear-gradient(#ee1515 0 47%,#12161f 47% 53%,#fff 53% 100%);
+  border:12px solid #12161f}
+.hero h1{font-family:var(--px); font-size:clamp(26px,6vw,44px); color:var(--gold);
+  text-shadow:3px 3px 0 var(--blue),6px 6px 0 rgba(0,0,0,.35); line-height:1.4}
+.hero .tag{font-family:var(--px9); font-size:clamp(11px,2.4vw,14px); color:#b6c1ec; margin-top:16px}
+.info-row{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:10px}
+.info-box{background:var(--bg2); border:2px solid var(--line); padding:18px; text-align:left;
+  display:flex; gap:14px; align-items:center}
+.info-box .ic{font-size:30px}
+.info-box .lbl{font-family:var(--px9); font-size:11px; color:var(--muted)}
+.info-box .val{font-family:var(--px9); font-size:15px; color:var(--ink); margin-top:6px; letter-spacing:.3px}
+
+/* 규칙 리스트 */
+.rules{list-style:none; display:grid; gap:11px}
+.rules li{display:flex; gap:13px; align-items:flex-start; background:var(--bg3);
+  border:2px solid var(--line); border-left:5px solid var(--red); padding:13px 15px; font-size:14px}
+.rules li .x{font-family:var(--px);color:var(--red);font-size:14px;flex:0 0 auto;margin-top:2px}
+.rules li b{color:var(--gold)}
+.rules li small{display:block;color:var(--muted);font-size:12.5px;margin-top:5px}
+
+/* 명령어 */
+.cmd{display:flex; flex-wrap:wrap; align-items:center; gap:12px; background:var(--bg3);
+  border:2px solid var(--line); padding:13px 15px; margin-bottom:10px}
+.cmd code{font-family:var(--px9); font-size:13px; background:#05081c; color:var(--gold);
+  padding:8px 12px; border:2px solid var(--line2); white-space:nowrap}
+.cmd code em{color:#7fd0ff; font-style:normal}
+.cmd span{font-size:13.5px; color:#cdd6f0}
+
+/* 체육관 배지 */
+.gym-track{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:6px}
+.badge{background:var(--bg3); border:2px solid var(--line); padding:16px 10px; text-align:center;
+  position:relative; transition:.15s}
+.badge:hover{transform:translateY(-4px); border-color:var(--tc)}
+.badge .num{position:absolute; top:6px; left:8px; font-family:var(--px9); font-size:10px; color:var(--dim)}
+.badge .disc{width:52px; height:52px; margin:6px auto 10px; border-radius:50%;
+  background:var(--tc); display:grid; place-items:center; font-size:24px;
+  box-shadow:0 0 0 4px rgba(255,255,255,.06), 0 0 18px -2px var(--tc)}
+.badge .nm{font-family:var(--px9); font-size:12px; color:var(--ink)}
+
+.ban-group{margin-bottom:14px}
+.ban-group .gh{font-family:var(--px9); font-size:12px; color:var(--red); margin-bottom:9px;
+  display:flex; align-items:center; gap:8px; letter-spacing:.3px}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{font-size:12.5px; background:var(--bg3); border:2px solid var(--line); padding:6px 11px; color:#dbe3f7}
+.chip.dng{border-color:rgba(238,21,21,.4); color:#ffc9c9}
+.chip.abil{border-color:rgba(255,203,5,.35); color:#ffe89a}
+.sub-note{font-size:12.5px;color:var(--muted);margin:4px 0 10px}
+
+/* API 사다리 */
+.ladder{display:grid; gap:10px}
+.tier{display:flex; align-items:center; gap:14px; background:var(--bg3); border:2px solid var(--line);
+  padding:13px 16px; position:relative; overflow:hidden}
+.tier .amt{font-family:var(--px9); font-size:14px; color:var(--gold); min-width:120px; flex:0 0 auto}
+.tier .arrow{color:var(--dim)}
+.tier .rw{font-size:13.5px; color:#cdd6f0}
+.tier.gold{border-color:var(--gold); background:linear-gradient(90deg,rgba(255,203,5,.12),var(--bg3))}
+.tier.mega{border-color:var(--red); background:linear-gradient(90deg,rgba(238,21,21,.15),var(--bg3))}
+
+/* 몬스터볼 & 포켓몬 툴바 */
+.toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px}
+.search{flex:1 1 220px; display:flex; align-items:center; gap:8px; background:var(--bg2);
+  border:2px solid var(--line2); padding:0 12px}
+.search input{flex:1; background:none; border:none; color:var(--ink); font-family:var(--body);
+  font-size:14px; padding:11px 0; outline:none}
+.search input::placeholder{color:var(--dim)}
+.seg{display:flex; border:2px solid var(--line2); overflow:hidden}
+.seg button{font-family:var(--px9); font-size:11px; padding:10px 14px; background:var(--bg2);
+  color:var(--muted); border:none; cursor:pointer; transition:.15s}
+.seg button.on{background:var(--red-d); color:#fff}
+.pill{font-family:var(--px9);font-size:11px;padding:9px 13px;background:var(--bg2);
+  color:var(--muted);border:2px solid var(--line);cursor:pointer;transition:.15s}
+.pill.on{background:var(--blue);color:#fff;border-color:#6fa0ff}
+.gens{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+
+.ball-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:11px}
+.ball-item{background:var(--bg3); border:2px solid var(--line); padding:12px 14px;
+  border-left:5px solid var(--green)}
+.ball-item.nerf{border-left-color:var(--nerf)}
+.ball-item .bn{font-family:var(--px9); font-size:12.5px; color:var(--gold); margin-bottom:6px}
+.ball-item .be{font-size:12.5px; color:#cdd6f0}
+.ball-item .be .up{color:var(--green);font-weight:700}
+.ball-item .be .dn{color:var(--nerf);font-weight:700}
+
+.mon-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px}
+.mon{background:var(--bg3); border:2px solid var(--line); padding:12px 14px}
+.mon .mn{font-family:var(--px9); font-size:13px; color:var(--gold); margin-bottom:8px}
+.stat{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; margin:3px 5px 3px 0;
+  background:var(--bg); border:1px solid var(--line2); padding:4px 8px}
+.stat .s-nm{color:var(--muted)}
+.stat .up{color:var(--green);font-weight:700}
+.stat .dn{color:var(--nerf);font-weight:700}
+.stat.special{color:#7fd0ff;border-color:rgba(127,208,255,.3)}
+.gen-tag{font-family:var(--px9);font-size:10px;color:var(--dim);margin-left:auto}
+.empty{text-align:center;color:var(--dim);padding:40px;font-family:var(--px9);font-size:12px}
+
+/* 기믹 */
+.gimmick-hi{background:linear-gradient(135deg,rgba(112,56,248,.18),var(--bg2));
+  border:2px solid rgba(147,112,248,.4); padding:18px; margin-bottom:16px}
+.legend-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:11px}
+.legend{background:var(--bg3); border:2px solid var(--line); padding:16px 10px; text-align:center;
+  position:relative; overflow:hidden}
+.legend::after{content:"★";position:absolute;top:5px;right:7px;color:var(--gold);font-size:11px;opacity:.6}
+.legend .em{font-size:26px}
+.legend .ln{font-family:var(--px9); font-size:12px; color:var(--ink); margin-top:9px}
+.legend .ll{font-size:10px;color:var(--dim);margin-top:3px}
+
+/* 도감 CTA */
+.cta{display:flex; flex-wrap:wrap; align-items:center; gap:18px; background:linear-gradient(135deg,#16345a,#0d1436);
+  border:2px solid var(--line2); padding:24px}
+.cta .big{font-size:44px}
+.cta .txt{flex:1 1 200px}
+.cta .txt h3{font-family:var(--px9); font-size:15px; color:var(--gold)}
+.cta .txt p{color:var(--muted); font-size:13px; margin-top:8px}
+.cta a{font-family:var(--px9); font-size:12px; color:#fff; text-decoration:none;
+  background:linear-gradient(#3fa34d,#2e7d3a); padding:14px 22px; border:none;
+  box-shadow:0 5px 0 #1c4e24; transition:.1s; white-space:nowrap}
+.cta a:hover{filter:brightness(1.08)}
+.cta a:active{transform:translateY(4px);box-shadow:0 1px 0 #1c4e24}
+
+.dex-common{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.rw-card{display:flex;align-items:center;gap:11px;background:var(--bg3);border:2px solid var(--line);padding:13px 14px}
+.rw-card .ce{font-size:22px;flex:0 0 auto}
+.rw-card .cn{font-family:var(--px9);font-size:12px;color:var(--gold)}
+.rw-card .cc{font-size:12px;color:var(--muted);margin-top:3px}
+.dex-gens{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px}
+.dex-gen{background:var(--bg3);border:2px solid var(--line);border-top:4px solid var(--blue);padding:14px}
+.dex-gen .gt{font-family:var(--px9);font-size:13px;color:var(--gold);margin-bottom:11px;
+  padding-bottom:9px;border-bottom:1px solid var(--line)}
+.dex-gen .dr{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#dbe3f7;margin-top:8px}
+.dex-gen .dr b{color:#fff}
+@media (max-width:820px){.dex-common{grid-template-columns:1fr}}
+
+footer{text-align:center; padding:30px 18px 50px; color:var(--dim);
+  font-family:var(--px9); font-size:10px; border-top:2px solid var(--line); margin-top:20px}
+
+@media (max-width:820px){
+  .shell{flex-direction:column; gap:16px; padding:16px 12px 60px}
+  nav.side{position:static; flex-direction:row; overflow-x:auto; gap:8px;
+    padding-bottom:6px; -webkit-overflow-scrolling:touch}
+  .nav-btn{flex:0 0 auto; white-space:nowrap}
+  .nav-btn:hover{transform:none}
+  .g2,.g3,.info-row{grid-template-columns:1fr}
+  .gym-track{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important; scroll-behavior:auto}
+  .pball{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 입장 스플래시 ============ -->
+<div id="splash">
+  <div class="stars" id="stars"></div>
+  <div class="flash" id="flash"></div>
+  <div class="splash-inner">
+    <div class="ball-stage">
+      <div class="pball" id="pball">
+        <div class="top"></div><div class="bot"></div><div class="band"></div>
+        <div class="btn"></div>
+      </div>
+    </div>
+    <div class="splash-title">지수의 꿈</div>
+    <div class="splash-sub">라이트 도파민 포켓몬 서버 · SERVER WIKI</div>
+    <button class="enter-btn" id="enterBtn">▶ 서버 위키 입장</button>
+    <div class="hint">몬스터볼을 눌러 위키를 개봉하세요</div>
+  </div>
+</div>
+
+<!-- ============ 앱 ============ -->
+<div id="app">
+  <header class="topbar">
+    <div class="logo-ball"></div>
+    <div class="brand">지수의 꿈<small>라이트 도파민 포켓몬 서버</small></div>
+    <div class="status"><span class="dot"></span>SERVER ONLINE</div>
+  </header>
+
+  <div class="shell">
+    <nav class="side" id="nav"></nav>
+    <main id="main">
+
+      <!-- 개요 -->
+      <section class="section active" id="s-home">
+        <div class="hero">
+          <div class="bigball"></div>
+          <h1>지수의 꿈</h1>
+          <div class="tag">라이트 도파민 포켓몬 서버에 오신 걸 환영합니다</div>
+        </div>
+        <div class="info-row">
+          <div class="info-box"><div class="ic">🎉</div><div>
+            <div class="lbl">서버 오픈</div>
+            <div class="val">2026.07.04 (토) 18:00</div></div></div>
+          <div class="info-box"><div class="ic">🛠️</div><div>
+            <div class="lbl">정기 점검</div>
+            <div class="val">2일마다 06:00 ~ 12:00</div></div></div>
+        </div>
+        <div class="panel" style="margin-top:18px">
+          <div class="p-title"><span class="ic">📖</span>위키 이용 안내</div>
+          <div class="grid g3">
+            <div class="card"><h4>⚖️ 규칙</h4><p>서버 규칙과 체육관 배틀 규칙을 꼭 확인하세요.</p></div>
+            <div class="card"><h4>🎁 보상</h4><p>API 달성 보상과 도감 보상을 챙겨가세요.</p></div>
+            <div class="card"><h4>📊 밸런스</h4><p>몬스터볼·포켓몬 상향 내역을 한눈에 확인하세요.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 서버 규칙 -->
+      <section class="section" id="s-rules">
+        <div class="sec-head"><h2>서버 규칙</h2>
+          <p>모두가 즐거운 서버를 위한 기본 규칙입니다. 위반 시 제재될 수 있어요.</p></div>
+        <ul class="rules" id="ruleList"></ul>
+      </section>
+
+      <!-- 명령어 -->
+      <section class="section" id="s-cmd">
+        <div class="sec-head"><h2>명령어</h2>
+          <p>서버에서 사용할 수 있는 주요 명령어 모음입니다.</p></div>
+        <div class="panel"><div id="cmdList"></div></div>
+      </section>
+
+      <!-- 체육관 -->
+      <section class="section" id="s-gym">
+        <div class="sec-head"><h2>체육관</h2>
+          <p>8개 체육관을 순서대로 정복하세요. 관장 도전 전 규칙을 반드시 숙지하세요.</p></div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">🏅</span>관장 도전 순서</div>
+          <div class="gym-track" id="gymTrack"></div>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">🚫</span>체육관 규칙 · 금지 사항</div>
+          <ul class="rules" id="gymRules"></ul>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">📦</span>금지 아이템</div>
+          <div class="chips" id="banItems"></div>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">⚔️</span>금지 기술</div>
+          <p class="sub-note">공격과 동시에 부가 효과가 확정적으로 터지는 기술도 해당 카테고리라면 금지됩니다. (예: 공격+상태이상 등)</p>
+          <div id="banMoves"></div>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">🧬</span>금지 특성</div>
+          <div class="chips" id="banAbil"></div>
+        </div>
+      </section>
+
+      <!-- 특수 아이템 -->
+      <section class="section" id="s-item">
+        <div class="sec-head"><h2>특수 아이템 & 기믹</h2>
+          <p>서버에만 있는 특별한 아이템과, 단 1마리만 존재하는 기믹 포켓몬 정보입니다.</p></div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">🎴</span>특수 아이템</div>
+          <div class="grid g2" id="items"></div>
+        </div>
+        <div class="gimmick-hi">
+          <div class="p-title"><span class="ic">🔮</span>기믹 포켓몬이란?</div>
+          <p style="font-size:13.5px;color:#d5ddf5">일부 포켓몬은 <b style="color:var(--gold)">기믹을 풀어야만</b> 얻을 수 있습니다.
+          기믹 포켓몬은 서버에 <b style="color:var(--gold)">단 1마리</b>만 존재하며, <b style="color:var(--nerf)">강탈권으로 뺏을 수 없습니다.</b>
+          기믹이 없는 포켓몬은 카드팩이나 자연 스폰으로 얻을 수 있어요.</p>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">⭐</span>기믹 포켓몬 목록</div>
+          <div class="legend-grid" id="gimmicks"></div>
+        </div>
+      </section>
+
+      <!-- API 보상 -->
+      <section class="section" id="s-api">
+        <div class="sec-head"><h2>API 보상</h2>
+          <p>API 수치를 달성하면 다양한 보상을 받을 수 있습니다.</p></div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">👤</span>플레이어 API</div>
+          <div class="ladder" id="apiPlayer"></div>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">👑</span>서버장 API</div>
+          <div class="ladder" id="apiServer"></div>
+        </div>
+      </section>
+
+      <!-- 몬스터볼 -->
+      <section class="section" id="s-ball">
+        <div class="sec-head"><h2>몬스터볼 상향 내역</h2>
+          <p>포획률이 조정된 몬스터볼 목록입니다. 검색으로 원하는 볼을 빠르게 찾아보세요.</p></div>
+        <div class="toolbar">
+          <div class="search"><span>🔍</span><input id="ballSearch" placeholder="몬스터볼 이름 검색..."></div>
+          <div class="seg" id="ballSeg">
+            <button data-f="all" class="on">전체</button>
+            <button data-f="buff">버프</button>
+            <button data-f="nerf">너프</button>
+          </div>
+        </div>
+        <div class="ball-list" id="ballList"></div>
+        <div class="empty" id="ballEmpty" style="display:none">검색 결과가 없어요 🥲</div>
+      </section>
+
+      <!-- 포켓몬 상향 -->
+      <section class="section" id="s-mon">
+        <div class="sec-head"><h2>포켓몬 상향 내역</h2>
+          <p>세대별 능력치 조정 내역입니다. <span style="color:var(--green)">초록</span>은 상승, <span style="color:var(--nerf)">빨강</span>은 하락이에요.</p></div>
+        <div class="toolbar">
+          <div class="search"><span>🔍</span><input id="monSearch" placeholder="포켓몬 이름 검색..."></div>
+        </div>
+        <div class="gens" id="genTabs"></div>
+        <div class="mon-list" id="monList"></div>
+        <div class="empty" id="monEmpty" style="display:none">검색 결과가 없어요 🥲</div>
+      </section>
+
+      <!-- 도감 보상 -->
+      <section class="section" id="s-dex">
+        <div class="sec-head"><h2>도감 보상</h2>
+          <p>세대별 도감을 완성하면 받는 보상입니다. 대부분 보상은 공통이고, <b style="color:var(--gold)">부적</b>과 <b style="color:var(--gold)">카드팩 개수</b>만 세대마다 달라요.</p></div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">🎁</span>모든 세대 공통 보상</div>
+          <div class="dex-common" id="dexCommon"></div>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">📚</span>세대별 추가 보상 · 부적 & 카드팩</div>
+          <div class="dex-gens" id="dexGens"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+  <footer>지수의 꿈 · 라이트 도파민 포켓몬 서버 위키 · GOTTA CATCH 'EM ALL</footer>
+</div>
+
+<script>
+/* ===================== 데이터 ===================== */
+const NAV = [
+  ['s-home','🏠','홈'],['s-rules','⚖️','서버 규칙'],['s-cmd','💬','명령어'],
+  ['s-gym','🏅','체육관'],['s-item','🎴','아이템 & 기믹'],['s-api','🎁','API 보상'],
+  ['s-ball','⚪','몬스터볼'],['s-mon','📊','포켓몬 상향'],['s-dex','📗','도감 보상']
+];
+
+const RULES = [
+  ['초전설 비방·녹화 플레이 금지',''],
+  ['야생 스폰 주변 광질 금지',''],
+  ['야생 및 마을에서는 일자굴 금지',''],
+  ['버그 악용 금지',''],
+  ['마을 농사 제한','2층까지만 가능'],
+  ['무한 용암','최대 5개까지만 허용'],
+  ['로비 날탈 금지',''],
+  ['엔더·지옥·울트라홀에서 날탈 금지','겉날개는 허용'],
+  ['야생 NPC와의 거래 금지',''],
+  ['야생에서 기능 블럭 파밍 금지','인챈트 테이블, 키우미집, 치료기, 책장 등 · 단, 그 자리에서 사용은 가능']
+];
+
+const CMDS = [
+  ['/pb <em>&lt;1~6&gt;</em>','파티 포켓몬을 꺼냅니다'],
+  ['/땅 공유 <em>&lt;한글닉&gt;</em>','다른 플레이어에게 땅을 공유합니다'],
+  ['/땅 공유해제 <em>&lt;한글닉&gt;</em>','공유했던 땅을 해제합니다'],
+  ['/땅 확장','보유한 땅을 확장합니다'],
+  ['/귓 <em>&lt;한글닉&gt; &lt;할말&gt;</em>','특정 플레이어에게 귓속말을 보냅니다'],
+  ['/보상받기 <em>&lt;n관장&gt; &lt;난이도&gt;</em>','관장 클리어 보상을 받습니다']
+];
+
+const GYMS = [
+  ['벌레','🐛','#8fa424'],['전기','⚡','#f2c531'],['독','☠️','#a040a0'],['악','🌑','#6b5a4a'],
+  ['고스트','👻','#7a68b0'],['강철','⚙️','#9fa8c9'],['물','💧','#5a92f0'],['드래곤','🐉','#7a4bf5']
+];
+
+const GYM_RULES = [
+  ['동일 포켓몬·도구 사용 금지',''],
+  ['Z기술과 메가진화 중 1가지만 사용 가능','동시 사용 불가'],
+  ['배틀 중 가방 사용 금지 · 다이맥스 사용 금지',''],
+  ['배틀 중 뇌대리 금지','퍼스트 클리어 이후로는 가능 · 배틀 사이사이 도움받는 것은 가능'],
+  ['이미 관장을 클리어한 포켓몬을 남에게 양도 금지','']
+];
+const BAN_ITEMS = ['레드카드','탈출버튼','자보열매','애터열매','악키열매','타라프열매','부스트에너지','탈출팩','레전드플레이트'];
+const BAN_MOVES = [
+  ['🛡️ 방어계',['방어','토치카','킹실드','등']],
+  ['💤 상태이상계 (수면·기만)',['버섯포자','최면술','등']],
+  ['⬇️ 랭크다운계',['추억의선물','막말내뱉기','등']],
+  ['💥 자폭 / 동귀어진계',['대폭발','자폭','목숨걸기','저주(고스트)']],
+  ['🔄 반사 / 길동무계',['카운터','미러코트','메탈버스트','길동무']],
+  ['🌀 강제 교체계',['날려버리기','울부짖기']],
+  ['🤖 AI 꼼수 방지계',['죽기살기','기선제압','작아지기','성묘','스텔스록','끈적끈적네트']],
+  ['👻 1턴 사라지는 기술',['구멍파기','고스트다이브','공중날기','등']]
+];
+const BAN_ABIL = ['괴짜','총대장','게으름','사이코메이커','불가사의부적'];
+
+const ITEMS = [
+  ['🗡️ 포켓몬 강탈권','사용하여 배틀을 걸고, 상대가 지닌 포켓몬을 강탈할 수 있습니다.'],
+  ['🛡️ 포켓몬 방어권','포켓몬 강탈을 방어할 수 있습니다.'],
+  ['🎨 스킨변경권','우클릭하여 포켓몬의 스킨을 변경하거나 이로치로 만들 수 있습니다.'],
+  ['💗 하트비늘','우클릭하여 포켓몬이 배울 수 있는 기술 중 하나를 배울 수 있습니다.'],
+  ['🌌 울트라홀 입장권','야생에서 사용하여 울트라홀에 30분간 입장할 수 있습니다.']
+];
+const GIMMICKS = [['뮤','🧬'],['펄기아','🌌'],['디아루가','⏳'],['그란돈','🌋'],['가이오가','🌊'],['레쿠쟈','🐉'],['제크로무','⚡'],['레시라무','🔥']];
+
+const API_PLAYER = [
+  ['44개','🍪 쿠키 3개',''],
+  ['100개 / 1000개','📦 일반상자 1개 / 11개',''],
+  ['300개 / 3000개','🎴 카드팩 1개 / 11개',''],
+  ['500개 / 5000개','✨ 고급상자 1개 / 11개','']
+];
+const API_SERVER = [
+  ['2929개','🎴 전체 카드팩 지급','gold'],
+  ['총 10만개 달성','🐴 로비에 아르세우스 등장','mega']
+];
+
+const BALLS = [
+  ['b','고대의 몬스터볼','포획률 <span class="up">1 → 1.25배</span>'],
+  ['b','고대의 수퍼볼','포획률 <span class="up">1.5 → 1.75배</span>'],
+  ['b','고대의 하이퍼볼','포획률 <span class="up">2 → 2.25배</span>'],
+  ['b','고대의 헤비볼','무거운 포켓몬 포획률 <span class="up">1.5배</span>'],
+  ['b','프레셔스볼','포획률 <span class="up">5배</span>'],
+  ['b','크리스마스볼','포획률 <span class="up">2.5배</span>'],
+  ['b','다크볼','밤·동굴에서 포획률 <span class="up">3 → 3.3배</span>'],
+  ['b','스피드볼','스피드 빠른 포켓몬 포획률 <span class="up">4 → 6배</span>'],
+  ['b','페더볼','포획률 <span class="up">1 → 1.25배</span>'],
+  ['b','프렌드볼','포획률 <span class="up">1.5배</span>'],
+  ['b','기가톤볼','무거운 포켓몬 포획률 <span class="up">3.25배</span>'],
+  ['b','힐볼','포획률 <span class="up">2배</span>'],
+  ['b','헤비볼','무거운 포켓몬 포획률 <span class="up">1.25배</span>'],
+  ['b','제트볼','포획률 <span class="up">1.5 → 2배</span>'],
+  ['b','메가톤볼','무거운 포켓몬 포획률 <span class="up">2.5배</span>'],
+  ['b','루어볼','낚시로 낚은 포켓몬 <span class="up">5 → 7배</span>'],
+  ['b','럭셔리볼','포획률 <span class="up">2배</span>'],
+  ['b','문볼','달의돌 진화 포켓몬 포획률 <span class="up">1.25배</span>'],
+  ['b','네스트볼','약한 포켓몬 포획률 <span class="up">1.2배 추가 상승</span>'],
+  ['b','네트볼','물·벌레타입 포획률 <span class="up">3.5 → 4.5배</span>'],
+  ['b','프리미어볼','포획률 <span class="up">1.1배</span>'],
+  ['b','리피트볼','잡은 적 있는 포켓몬 포획률 <span class="up">3.5 → 4.2배</span>'],
+  ['b','사파리볼','평원·사바나 바이옴 포획률 <span class="up">1.5 → 3.3배</span>'],
+  ['b','콤페볼','벌레타입 포획률 <span class="up">1.5 → 3.75배</span>'],
+  ['b','윙볼','포획률 <span class="up">1.25 → 1.5배</span>'],
+  ['n','다이브볼','포획률 <span class="dn">3.5 → 3.15배</span>'],
+  ['n','드림볼','포획률 <span class="dn">4 → 3.2배</span>'],
+  ['n','퀵볼','첫 턴 사용 시 포획률 <span class="dn">5 → 4배</span>']
+];
+
+const MON = {
+  '1세대':[['버터플','체력 10 공격 -5 특공 10 스피드 15'],['피죤투','공격 5 특공 5'],['메가피죤투','공격 5 특공 5'],['레트라','체력 10 공격 10 특공 10'],['레트라(알)','공격 10 특공 10 스피드 10'],['깨비드릴조','공격 10 스피드 10 방어 20'],['아보크','공격 10'],['피카츄','체력 10 공격 10 방어 10 특공 10'],['라이츄X','특성 일렉트릭메이커'],['라이츄Y','특성 노가드'],['고지','방어 10 특방 10'],['라플레시아','스피드 10'],['도나리','공격 10 특공 10 스피드 10'],['닥트리오','공격 10 방어 10'],['닥트리오(알)','공격 10 특방 10'],['페르시온','공격 10 특공 10 스피드 10'],['페르시온(알)','공격 10 특공 10 스피드 10'],['골덕','공격 -10 특공 10'],['날쌩마','공격 20 방어 10'],['파오리','공격 10 방어 10 특방 10'],['두트리오','체력 10 방어 10'],['쥬레곤','특공 10 방어 5 특방 5'],['슬리퍼','공격 -10 특공 20'],['붐볼','특공 10'],['텅구리','공격 10 방어 10 스피드 10'],['왕콘치','스피드 30'],['마임맨','특방 20'],['마임맨(가)','방어 20'],['이브이','공격 20 특공 20 스피드 10'],['부스터','공격 10'],['프리져','공격 -20 특공 20'],['가라르프리져','공격 -20 특공 10 특방 10'],['파이어','공격 -20 특공 10 스피드 10'],['뮤츠','업어후리기 자력기 추가'],['뮤','공격 10 특공 10']],
+  '2세대':[['메가니움','방어 10 특방 10'],['블레이범','공격 10 특공 10'],['블레이범(히)','공격 10 특공 10'],['장크로다일','공격 10'],['다꼬리','공격 20 특공 20 방어 10 특방 10'],['야부엉','공격 30'],['레디안','스피드 10'],['피츄','공격 20 특공 20'],['아르코','스피드 10'],['해루미','방어 10 특방 10 특공 10'],['에브이','특공 5'],['마그카르고','공격 -10 특공 10'],['딜리버드','올스탯 10'],['만타인','특공 10 특방 10'],['헬가','공격 5 특공 5'],['메가헬가','공격 5 특공 5'],['코리갑','특공 -10 방어 10'],['루브도','공격 5 특공 5'],['밀탱크','특공 -10 방어 10 특방 10'],['라이코','공격 -20 방어 10 특공 10'],['앤테이','공격 10 특공 -10'],['스이쿤','방어 5 특방 5'],['세레비','공격 -30 특공 30']],
+  '3세대':[['뷰티플라이','방어 10 특방 10'],['독케일','공격 10 특공 10'],['델케티','방어 20 특방 20'],['플러시','체력 20'],['마이농','체력 20'],['얼루기','공격 10 특공 10 방어 10 특방 10'],['밀로틱','공격 5 특공 5'],['트로피우스','공격 20 특공 20'],['사랑동이','방어 10 특방 10 특공 20'],['메가레쿠쟈','특공 -20 방어 10 특방 10']],
+  '4세대':[['초염몽','공격 10 특공 -10'],['네오라이트','공격 -10 특공 20 특방 10'],['눈설왕','공격 10 특공 10'],['메가눈설왕','공격 10 특공 10'],['포푸니라','방어 10'],['에레키블','공격 5 방어 5'],['마그마번','특공 5 특방 5'],['메가엘레이드','공격 10 특공 10'],['리피아','공격 5 특공 5'],['글레이시아','공격 5 특공 5'],['유크시','공격 10 특공 10'],['엠라이트','공격 10 특공 10'],['아그놈','공격 10 특공 10'],['디아루가','공격 -20 특방 10 스피드 10'],['디아루가 오리진','공격 -10 스피드 10'],['펄기아','공격 -20 방어 10 스피드 10'],['펄기아 오리진','공격 -10 스피드 10'],['피오네','공격 10 특공 10'],['마나피','공격 10 특공 10'],['아르세우스','올스탯 10']],
+  '5세대':[['염무왕','방어 10 특방 10'],['제브라이카','공격 10 특공 10'],['맘박쥐','공격 5 특공 5 방어 10 특방 10'],['다부니','특공 20'],['메가다부니','특공 20'],['드레디어','공격 -5 특공 5'],['바라철록','공격 10 특공 10'],['에몽가','공격 10 특공 10 방어 5 특방 5'],['스완나','방어 10 특방 10'],['툰베어','특공 -5 스피드 5'],['코바르온','특공 -25 공격 25'],['테라키온','특공 -20 방어 10 특방 10'],['비리디온','특공 -20 공격 20'],['레시라무','공격 -20 특공 10 스피드 10'],['제크로무','특공 -20 공격 10 스피드 10'],['큐레무','공격 10 특공 10'],['화이트큐레무','특공 5 스피드 5'],['케르디오','공격 -10 특공 10'],['메로엣타(스텝폼)','공격 10 방어 10'],['메로엣타(보이스폼)','특공 10 특방 10']],
+  '6세대':[['브리가론','공격 5 방어 5'],['마폭시','특공 5 특방 5'],['프레프티르','방어 10 특방 10'],['나루림','방어 10 특방 10'],['데덴네','공격 10 특공 10 스피드 10'],['미끄래곤','공격 -10 특방 10'],['음번','특공 10'],['지가르데','공격 20 특공 20'],['볼케니온','특공 20 특방 10 스피드 -25']],
+  '7세대':[['에리본','공격 10 특공 10'],['큐아링','방어 10 특방 10'],['토게데마루','방어 10 특방 10'],['할비롱','방어 10 특방 10'],['카푸브루루','공격 10 특공 -10']],
+  '8세대':[['펄스멍','공격 10 특공 10'],['마휘핑','방어 10 특방 10'],['모르페코','방어 10 특방 10'],['대왕끼리동','방어 10 특방 10 특공 -20'],['파치르돈','스피드 5'],['어치르돈','스피드 5'],['두랄루돈','공격 5 특공 5'],['자루도','특공 -20 방어 10 특방 10']],
+  '9세대':[['빠르모트','공격 5 특공 5']]
+};
+
+/* ===================== 스플래시 별 & 입장 ===================== */
+(function(){
+  const stars=document.getElementById('stars'); let s='';
+  for(let i=0;i<70;i++){s+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s"></i>`}
+  stars.innerHTML=s;
+})();
+
+function beep(){
+  try{
+    const C=window.AudioContext||window.webkitAudioContext; if(!C)return;
+    const ctx=new C(); const now=ctx.currentTime;
+    [660,880,1320].forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='square'; o.frequency.value=f;
+      o.connect(g); g.connect(ctx.destination);
+      const t=now+i*0.09;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.09,t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.16);
+      o.start(t); o.stop(t+0.18);
+    });
+  }catch(e){}
+}
+
+function enter(){
+  const pb=document.getElementById('pball');
+  pb.parentElement.classList.add('glow');
+  beep();
+  const flash=document.getElementById('flash');
+  flash.classList.add('go');
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('leaving');
+    document.getElementById('app').classList.add('show');
+  },520);
+  setTimeout(()=>{document.getElementById('splash').style.display='none'},1200);
+}
+document.getElementById('enterBtn').addEventListener('click',enter);
+document.getElementById('pball').addEventListener('click',enter);
+
+/* ===================== 렌더링 ===================== */
+const $=id=>document.getElementById(id);
+
+// 네비
+$('nav').innerHTML=NAV.map((n,i)=>
+  `<button class="nav-btn${i===0?' active':''}" data-t="${n[0]}"><span class="ic">${n[1]}</span>${n[2]}</button>`).join('');
+$('nav').addEventListener('click',e=>{
+  const b=e.target.closest('.nav-btn'); if(!b)return;
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); $(b.dataset.t).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+// 규칙
+$('ruleList').innerHTML=RULES.map(r=>
+  `<li><span class="x">✕</span><div><b>${r[0]}</b>${r[1]?`<small>${r[1]}</small>`:''}</div></li>`).join('');
+
+// 명령어
+$('cmdList').innerHTML=CMDS.map(c=>
+  `<div class="cmd"><code>${c[0]}</code><span>${c[1]}</span></div>`).join('');
+
+// 체육관 배지
+$('gymTrack').innerHTML=GYMS.map((g,i)=>
+  `<div class="badge" style="--tc:${g[2]}"><span class="num">0${i+1}</span>
+   <div class="disc">${g[1]}</div><div class="nm">${g[0]}</div></div>`).join('');
+$('gymRules').innerHTML=GYM_RULES.map(r=>
+  `<li><span class="x">✕</span><div><b>${r[0]}</b>${r[1]?`<small>${r[1]}</small>`:''}</div></li>`).join('');
+$('banItems').innerHTML=BAN_ITEMS.map(i=>`<span class="chip dng">${i}</span>`).join('');
+$('banMoves').innerHTML=BAN_MOVES.map(g=>
+  `<div class="ban-group"><div class="gh">${g[0]}</div><div class="chips">${g[1].map(m=>`<span class="chip">${m}</span>`).join('')}</div></div>`).join('');
+$('banAbil').innerHTML=BAN_ABIL.map(a=>`<span class="chip abil">${a}</span>`).join('');
+
+// 아이템 & 기믹
+$('items').innerHTML=ITEMS.map(i=>`<div class="card"><h4>${i[0]}</h4><p>${i[1]}</p></div>`).join('');
+$('gimmicks').innerHTML=GIMMICKS.map(g=>
+  `<div class="legend"><div class="em">${g[1]}</div><div class="ln">${g[0]}</div><div class="ll">기믹 · 1마리 한정</div></div>`).join('');
+
+// API
+$('apiPlayer').innerHTML=API_PLAYER.map(t=>
+  `<div class="tier"><span class="amt">${t[0]}</span><span class="arrow">▸</span><span class="rw">${t[1]}</span></div>`).join('');
+$('apiServer').innerHTML=API_SERVER.map(t=>
+  `<div class="tier ${t[2]}"><span class="amt">${t[0]}</span><span class="arrow">▸</span><span class="rw">${t[1]}</span></div>`).join('');
+
+// 몬스터볼
+let ballFilter='all', ballQ='';
+function renderBalls(){
+  const arr=BALLS.filter(b=>{
+    const okF=ballFilter==='all'||(ballFilter==='buff'&&b[0]==='b')||(ballFilter==='nerf'&&b[0]==='n');
+    return okF && b[1].includes(ballQ);
+  });
+  $('ballEmpty').style.display=arr.length?'none':'block';
+  $('ballList').innerHTML=arr.map(b=>
+    `<div class="ball-item ${b[0]==='n'?'nerf':''}"><div class="bn">${b[0]==='n'?'🔻 ':'🔺 '}${b[1]}</div><div class="be">${b[2]}</div></div>`).join('');
+}
+$('ballSeg').addEventListener('click',e=>{
+  const btn=e.target.closest('button'); if(!btn)return;
+  $('ballSeg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+  btn.classList.add('on'); ballFilter=btn.dataset.f; renderBalls();
+});
+$('ballSearch').addEventListener('input',e=>{ballQ=e.target.value.trim();renderBalls()});
+renderBalls();
+
+// 포켓몬 상향
+const GENS=Object.keys(MON);
+let genFilter='전체', monQ='';
+$('genTabs').innerHTML=['전체',...GENS].map(g=>
+  `<button class="pill${g==='전체'?' on':''}" data-g="${g}">${g}</button>`).join('');
+const STATS=['올스탯','체력','공격','방어','특공','특방','스피드'];
+function statChips(txt){
+  // 스탯 패턴을 칩으로, 그 외(특성/자력기 등)는 파란 special 칩으로
+  let out='', used=txt;
+  const re=/(올스탯|체력|공격|방어|특공|특방|스피드)\s*(-?\d+)/g;
+  let m, hits=[];
+  while((m=re.exec(txt))){hits.push([m[1],m[2],m.index,re.lastIndex])}
+  if(hits.length){
+    hits.forEach(h=>{
+      const n=parseInt(h[1],10);
+      out+=`<span class="stat"><span class="s-nm">${h[0]}</span><span class="${n<0?'dn':'up'}">${n>0?'+':''}${n}</span></span>`;
+    });
+    // 스탯 외 텍스트가 있으면 추가
+    const rest=txt.replace(re,'').replace(/\s+/g,' ').trim();
+    if(rest)out+=`<span class="stat special">✨ ${rest}</span>`;
+  }else{
+    out=`<span class="stat special">✨ ${txt}</span>`;
+  }
+  return out;
+}
+function renderMon(){
+  let rows=[];
+  GENS.forEach(g=>{
+    if(genFilter!=='전체'&&genFilter!==g)return;
+    MON[g].forEach(m=>{
+      if(monQ&&!m[0].includes(monQ))return;
+      rows.push([m[0],m[1],g]);
+    });
+  });
+  $('monEmpty').style.display=rows.length?'none':'block';
+  $('monList').innerHTML=rows.map(r=>
+    `<div class="mon"><div class="mn">${r[0]}<span class="gen-tag">${r[2]}</span></div><div>${statChips(r[1])}</div></div>`).join('');
+}
+$('genTabs').addEventListener('click',e=>{
+  const p=e.target.closest('.pill'); if(!p)return;
+  $('genTabs').querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));
+  p.classList.add('on'); genFilter=p.dataset.g; renderMon();
+});
+$('monSearch').addEventListener('input',e=>{monQ=e.target.value.trim();renderMon()});
+renderMon();
+
+// 도감 보상
+const DEX_COMMON=[
+  ['⚪','프레셔스볼','16개'],['🔵','퀵볼','32개'],['💚','힐볼','32개'],
+  ['🌑','다크볼','32개'],['🥤','미네랄사이다','16개'],['💧','워터듄드','3개'],
+  ['🟣','마스터볼','1개'],['💰','현금','300,000원'],['🏷️','칭호','획득']
+];
+const DEX_GENS=[
+  ['1세대','빛나는부적','15개'],['2세대','흔들림없는부적','10개'],['3세대','경험부적','12개'],
+  ['4세대','빛나는부적','10개'],['5세대','흔들림없는부적','15개'],['6세대','경험부적','5개'],
+  ['7세대','빛나는부적','5개'],['8세대','흔들림없는부적','7개'],['9세대','경험부적','7개']
+];
+const charmIc=n=>n.includes('빛나는')?'✨':n.includes('흔들림')?'🎯':'📈';
+$('dexCommon').innerHTML=DEX_COMMON.map(d=>
+  `<div class="rw-card"><span class="ce">${d[0]}</span><div><div class="cn">${d[1]}</div><div class="cc">${d[2]}</div></div></div>`).join('');
+$('dexGens').innerHTML=DEX_GENS.map(g=>
+  `<div class="dex-gen"><div class="gt">${g[0]} 도감</div>
+   <div class="dr">${charmIc(g[1])} <b>${g[1]}</b></div>
+   <div class="dr">🎴 카드팩 <b>${g[2]}</b></div></div>`).join('');
+</script>
+</body>
+</html>
