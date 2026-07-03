@@ -428,7 +428,7 @@ footer{text-align:center; padding:30px 18px 50px; color:var(--dim);
         <div class="info-row">
           <div class="info-box"><div class="ic">🎉</div><div>
             <div class="lbl">서버 오픈</div>
-            <div class="val">2026.07.04 (토) 18:00</div></div></div>
+            <div class="val">2026.07.04 (토) 16:00</div></div></div>
           <div class="info-box"><div class="ic">🛠️</div><div>
             <div class="lbl">정기 점검</div>
             <div class="val">2일마다 06:00 ~ 12:00</div></div></div>
@@ -466,6 +466,15 @@ footer{text-align:center; padding:30px 18px 50px; color:var(--dim);
           <div class="gym-track" id="gymTrack"></div>
         </div>
         <div class="panel">
+          <div class="p-title"><span class="ic">🚪</span>체육관 입장 & 이벤트 관장</div>
+          <div class="grid g2">
+            <div class="card"><h4>🧩 체육관 입장 기믹</h4>
+              <p>체육관 입장 기믹은 <b style="color:var(--gold)">입장할 때마다</b> 다시 클리어해야 합니다.</p></div>
+            <div class="card"><h4>🌟 이벤트 관장</h4>
+              <p>로비 어딘가에 이벤트 관장이 있습니다. 배틀에서 승리하면 본인의 <b style="color:var(--gold)">스킨·포켓몬·스킬·도구 등이 계승</b>됩니다.</p></div>
+          </div>
+        </div>
+        <div class="panel">
           <div class="p-title"><span class="ic">🚫</span>체육관 규칙 · 금지 사항</div>
           <ul class="rules" id="gymRules"></ul>
         </div>
@@ -481,6 +490,11 @@ footer{text-align:center; padding:30px 18px 50px; color:var(--dim);
         <div class="panel">
           <div class="p-title"><span class="ic">🧬</span>금지 특성</div>
           <div class="chips" id="banAbil"></div>
+        </div>
+        <div class="panel">
+          <div class="p-title"><span class="ic">🐞</span>확인된 버그</div>
+          <div class="card"><h4>위협</h4>
+            <p>간혹 <b style="color:var(--gold)">위협</b>이 사용되지 않을 때가 있습니다. <b style="color:var(--green)">금지는 아니지만</b> 인지해 주세요.</p></div>
         </div>
       </section>
 
@@ -634,10 +648,11 @@ const NAV = [
 ];
 
 const RULES = [
-  ['초전설 비방·녹화 플레이 금지',''],
+  ['초전설·관장·이벤트 등 비방 녹화 플레이 금지',''],
   ['야생 스폰 주변 광질 금지',''],
   ['야생 및 마을에서는 일자굴 금지',''],
   ['버그 악용 금지',''],
+  ['마을 토지 사용 제한','1인당 3청크까지 사용 가능'],
   ['마을 농사 제한','2층까지만 가능'],
   ['무한 용암','최대 5개까지만 허용'],
   ['로비 날탈 금지',''],
@@ -912,7 +927,7 @@ renderMon();
 // 도감 보상
 const DEX_COMMON=[
   ['⚪','프레셔스볼','16개'],['🔵','퀵볼','32개'],['💚','힐볼','32개'],
-  ['🌑','다크볼','32개'],['🥤','미네랄사이다','16개'],['💧','워터듄드','3개'],
+  ['🌑','다크볼','32개'],['🥤','미네랄사이다','16개'],['💧','워터듀드','3개'],
   ['🟣','마스터볼','1개'],['💰','현금','300,000원'],['🏷️','칭호','획득']
 ];
 const DEX_GENS=[
